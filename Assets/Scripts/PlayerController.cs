@@ -9,38 +9,28 @@ public class PlayerController : MonoBehaviour
     [SerializeField] ParticleSystem deathBlast;
 
     public float transformSpeed = 20f; //speed of changing scale of player
-    public float scaleChangeSpeed = 0.1f;
-    public float moveForwardSpeed = 10f;
-    public float yScale,xScale;
-    private float xUpperBound = 3f;
-    private float xLowerBound = 0.2f;
-    private float yUpperBound = 3f;
-    private float yLowerBound = 0.2f;
-    private float zScale = 0.5f;
+    public float scaleChangeSpeed = 0.1f; // amount of how much the scale should be changed every fixed update cycle
+    public float moveForwardSpeed = 10f; // player moving forward speed
+    public float yScale,xScale, zScale = 0.5f; // user latest scale
+    private float upperBound = 3f; // player maximum width and height limit
+    private float lowerBound = 0.2f; // player minimum width and height limit
 
     
 
-    private Rigidbody playerRb;
+    private Rigidbody playerRb; // rigid body reference to add force on player
 
-    //public bool isxUpperBound, isxLowerBound, isyUpperBound, isyLowerBound;
+    //public bool isupperBound, isxLowerBound, isyUpperBound, isyLowerBound;
 
 
     void Awake()
     {
-        playerRb = GetComponent<Rigidbody>();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        playerRb = GetComponent<Rigidbody>(); //  getting rigid body component
     }
 
     // Update is called once per frame
     void Update()
     {
-        ManageInput();
-        //ChangeShape();
+        ManageInput(); 
     }
 
     void FixedUpdate()
@@ -52,6 +42,7 @@ public class PlayerController : MonoBehaviour
     void ManageInput()
     {
 
+        // if user press left click change shape of player (+ height - width) else (-height + width)
         if(Input.GetMouseButton(0))
         {
             ChangeShape(scaleChangeSpeed,-scaleChangeSpeed);
@@ -61,31 +52,30 @@ public class PlayerController : MonoBehaviour
         {
             ChangeShape(-scaleChangeSpeed, scaleChangeSpeed);
         }
-        //verticalInput = Input.GetAxis("Vertical"); // getting input w/s or up/down arrow
         
     }
 
     //changes shape and size of player by changing its x and y scale
     void ChangeShape(float yScaleChangeSpeed, float xScaleChangeSpeed)
     {
-        
-        yScale = transform.localScale.y;
-        yScale += yScaleChangeSpeed;
+        // getting latest x and yscale of player
+        yScale = transform.localScale.y; 
         xScale = transform.localScale.x;
+        // adding scale change amount to player scale 
+        yScale += yScaleChangeSpeed; 
         xScale += xScaleChangeSpeed;
         
 
-        Vector3 scale = new Vector3(xScale, yScale,zScale);
+        Vector3 scale = new Vector3(xScale, yScale,zScale); // updated scale of player
 
         //isyUpperBound = yScale <= yUpperBound;
         //isxLowerBound = xScale >= xLowerBound;
         //isyLowerBound = yScale >= yLowerBound;
-        //isxUpperBound = xScale <= xUpperBound;
+        //isupperBound = xScale <= upperBound;
         
 
-        if(yScale <= yUpperBound && xScale >= xLowerBound && yScale >= yLowerBound && xScale <= xUpperBound) // checks if player scale/size is within bounds and changes scale if in bounds
+        if(yScale <= upperBound && xScale >= lowerBound && yScale >= lowerBound && xScale <= upperBound) // checks if player scale/size is within bounds and changes scale if in bounds
         {
-            //transform.localScale = scale;
             transform.localScale = Vector3.Lerp(transform.localScale, scale,transformSpeed* Time.deltaTime ); // to change scale of player smoothly
         }
 
@@ -93,32 +83,31 @@ public class PlayerController : MonoBehaviour
 
     void MoveForward()
     {
-        //transform.Translate(Vector3.forward* moveForwardSpeed); // to move player forward constantly with same speed
-
-        playerRb.AddForce(Vector3.forward * moveForwardSpeed);
+        playerRb.AddForce(Vector3.forward * moveForwardSpeed); // Adding force on player to move forward
 
     }
 
+
+    // coroutine so game is not ended immediatly instead wait for 2 seconds so Particle effect can start and finish
     IEnumerator DeathEffect()
     {
-        deathBlast =  Instantiate(deathBlast, transform.position,transform.rotation);
-        deathBlast.Play();
+        deathBlast =  Instantiate(deathBlast, transform.position,transform.rotation); // instantiating a new particle effect
+        deathBlast.Play(); // playing particle effect
 
-        Destroy(gameObject);
-        yield return new WaitForSeconds(2);
-        GameManager.Instance.GameOver();
+        yield return new WaitForSeconds(1); // wait for 2 seconds before calling gameOver()
+        Debug.Log("Hee");
+        Destroy(gameObject); // destry player
+        GameManager.Instance.GameOver(); 
     }
 
 
+    
     void OnCollisionEnter(Collision collision)
     {
-
-        
-
+        //check if player collides with obstacle
         if(collision.gameObject.CompareTag("Obstacle"))
         {
             StartCoroutine(DeathEffect());
-            
         }
     }
 

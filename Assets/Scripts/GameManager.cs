@@ -5,46 +5,26 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     
-    public static GameManager Instance;
+    public static GameManager Instance; // static Instance to access GameManager without any object or reference
 
     void Awake()
     {
-        if(Instance!=null)
+        if(Instance!=null) // checks if there is an existing object of Game Manager::: Destroy gameobject if there is an existing object
         {
-            Destroy(gameObject);
-            return;
+            Destroy(gameObject); 
+            return; 
         }
 
-        Instance = this;
+        Instance = this; // change Instance to new one
         //DontDestroyOnLoad(gameObject);
     }
 
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        ManageInput();
-    }
-
-    void ManageInput()
-    {
-        
-    }
-
-    void PauseGame()
-    {
-        
-    }
-
+    //method to do some gameover time tasks
     public void GameOver()
     {
-        Time.timeScale = 0;
-        UIHandler.Instance.GameOver();
+        Debug.Log("here");
+        Time.timeScale = 0; // pause the game so user can not interact with game after game is over
+        UIHandler.Instance.GameOver(); // calls Game over method from another class to enable Gameover screen
     }
 }
